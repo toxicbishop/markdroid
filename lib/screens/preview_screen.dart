@@ -1,0 +1,175 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import '../services/file_service.dart';
+import '../theme/app_theme.dart';
+
+class PreviewScreen extends StatefulWidget {
+  final PickedMarkdownFile file;
+
+  const PreviewScreen({super.key, required this.file});
+
+  @override
+  State<PreviewScreen> createState() => _PreviewScreenState();
+}
+
+class _PreviewScreenState extends State<PreviewScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.primary,
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.file.fileName,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              widget.file.sizeFormatted,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppTheme.onSurfaceMuted,
+              ),
+            ),
+          ],
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: AppTheme.accent,
+          labelColor: AppTheme.accent,
+          unselectedLabelColor: AppTheme.onSurfaceMuted,
+          tabs: const [
+            Tab(text: 'Preview'),
+            Tab(text: 'Source'),
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // Rendered markdown preview
+                Container(
+                  color: Colors.white,
+                  child: Markdown(
+                    data: widget.file.content,
+                    styleSheet: MarkdownStyleSheet(
+                      h1: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF111827),
+                      ),
+                      h2: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1f2937),
+                      ),
+                      h3: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
+                      p: const TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF374151),
+                        height: 1.6,
+                      ),
+                      code: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 13,
+                        color: Color(0xFFdc2626),
+                        backgroundColor: Color(0xFFf3f4f6),
+                      ),
+                      codeblockDecoration: BoxDecoration(
+                        color: const Color(0xFF1e293b),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      blockquote: const TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF1e40af),
+                        fontStyle: FontStyle.italic,
+                      ),
+                      blockquoteDecoration: BoxDecoration(
+                        color: const Color(0xFFeff6ff),
+                        border: Border(
+                          left: BorderSide(
+                            color: AppTheme.accent,
+                            width: 4,
+                          ),
+                        ),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(20),
+                  ),
+                ),
+                // Raw source view
+                Container(
+                  color: const Color(0xFF0d1117),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      widget.file.content,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 13,
+                        color: Color(0xFFe6edf3),
+                        height: 1.6,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Bottom action bar
+          Container(
+            color: AppTheme.surface,
+            padding: EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              16 + MediaQuery.of(context).padding.bottom,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pop(context, true),
+                    icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
+                    label: const Text('Convert to PDF'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

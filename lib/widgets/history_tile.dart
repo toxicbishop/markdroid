@@ -33,7 +33,7 @@ class HistoryTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isNew
-              ? AppTheme.accent.withOpacity(0.5)
+              ? AppTheme.accent.withValues(alpha: 0.5)
               : const Color(0xFF1E2D5A),
           width: isNew ? 1.5 : 1,
         ),
@@ -46,7 +46,7 @@ class HistoryTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppTheme.error.withOpacity(0.12),
+                color: AppTheme.error.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(

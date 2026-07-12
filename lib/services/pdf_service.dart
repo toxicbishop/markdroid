@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
@@ -32,6 +31,7 @@ class PdfService {
       final styledHtml = _wrapWithStyles(html, fileName);
 
       // Step 3: Convert HTML → PDF bytes via Chromium/WebView renderer
+      // ignore: deprecated_member_use
       final pdfBytes = await Printing.convertHtml(
         format: PdfPageFormat.a4,
         html: styledHtml,

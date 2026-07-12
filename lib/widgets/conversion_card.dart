@@ -47,7 +47,7 @@ class ConversionCard extends StatelessWidget {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: AppTheme.accent.withOpacity(0.12),
+                        color: AppTheme.accent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
@@ -99,10 +99,10 @@ class ConversionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.accent.withOpacity(0.1),
+        color: AppTheme.accent.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.accent.withOpacity(0.3),
+          color: AppTheme.accent.withValues(alpha: 0.3),
           width: 1,
         ),
       ),

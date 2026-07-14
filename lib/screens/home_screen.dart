@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/file_service.dart';
 import '../services/pdf_service.dart';
 import '../theme/app_theme.dart';
@@ -6,6 +8,8 @@ import '../widgets/conversion_card.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/history_tile.dart';
 import 'preview_screen.dart';
+import 'editor_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,10 +26,48 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _lastConvertedPath;
   List<FileSystemEntry> _history = [];
 
+  static const MethodChannel _intentChannel = MethodChannel('markpdf/intent');
+
   @override
   void initState() {
     super.initState();
     _loadHistory();
+    _intentChannel.setMethodCallHandler((call) async {
+      if (call.method == 'openFile') {
+        final String path = call.arguments;
+        _handleIncomingFile(path);
+      }
+    });
+  }
+
+  Future<void> _handleIncomingFile(String path) async {
+    final file = File(path);
+    if (!await file.exists()) return;
+    
+    final content = await file.readAsString();
+    final stat = await file.stat();
+    
+    final pickedFile = PickedMarkdownFile(
+      content: content,
+      fileName: path.split('/').last,
+      filePath: path,
+      sizeBytes: stat.size,
+    );
+    
+    if (!mounted) return;
+    
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditorScreen(initialFile: pickedFile),
+      ),
+    );
+    
+    if (result is ConversionResult && result.success && result.outputPath != null) {
+      setState(() => _lastConvertedPath = result.outputPath);
+      await _loadHistory();
+      _showSuccessSheet(result.outputPath!);
+    }
   }
 
   Future<void> _loadHistory() async {
@@ -187,6 +229,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+          ),
           if (_history.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete_sweep_rounded),
@@ -265,19 +317,41 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _isConverting ? null : _pickAndConvert,
-        icon: _isConverting
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Icon(Icons.add_rounded),
-        label: Text(_isConverting ? 'Converting…' : 'Pick Markdown File'),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'create',
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EditorScreen()),
+              );
+              if (result is ConversionResult && result.success && result.outputPath != null) {
+                setState(() => _lastConvertedPath = result.outputPath);
+                await _loadHistory();
+                _showSuccessSheet(result.outputPath!);
+              }
+            },
+            child: const Icon(Icons.edit_note_rounded),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton.extended(
+            heroTag: 'pick',
+            onPressed: _isConverting ? null : _pickAndConvert,
+            icon: _isConverting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.file_upload_rounded),
+            label: Text(_isConverting ? 'Converting…' : 'Import Markdown'),
+          ),
+        ],
       ),
     );
   }

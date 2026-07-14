@@ -65,7 +65,7 @@ class PdfService {
     await Share.shareXFiles(
       [file],
       subject: 'Converted PDF',
-      text: 'PDF converted by MarkPDF',
+      text: 'PDF converted by Markdroid',
     );
   }
 

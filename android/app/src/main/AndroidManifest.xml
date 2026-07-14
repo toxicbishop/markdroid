@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_DOCUMENTS"/>
 
     <application
-        android:label="MarkPDF"
+        android:label="Markdroid"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">

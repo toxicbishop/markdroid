@@ -10,7 +10,7 @@ import java.io.FileOutputStream
 import java.io.InputStream
 
 class MainActivity: FlutterActivity() {
-    private val CHANNEL = "markpdf/intent"
+    private val CHANNEL = "markdroid/intent"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

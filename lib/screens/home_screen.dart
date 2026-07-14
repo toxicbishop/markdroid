@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _lastConvertedPath;
   List<FileSystemEntry> _history = [];
 
-  static const MethodChannel _intentChannel = MethodChannel('markpdf/intent');
+  static const MethodChannel _intentChannel = MethodChannel('markdroid/intent');
 
   @override
   void initState() {
@@ -223,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(color: AppTheme.onSurface),
             ),
             Text(
-              'PDF',
+              'droid',
               style: TextStyle(color: AppTheme.accent),
             ),
           ],
@@ -319,6 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           FloatingActionButton(
             heroTag: 'create',

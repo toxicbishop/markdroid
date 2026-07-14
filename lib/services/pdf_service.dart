@@ -5,7 +5,7 @@ import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:open_file/open_file.dart';
-
+import 'settings_service.dart';
 class ConversionResult {
   final bool success;
   final String? outputPath;
@@ -21,6 +21,8 @@ class PdfService {
     required String fileName,
   }) async {
     try {
+      final settings = await SettingsService().getSettings();
+      
       // Step 1: Parse markdown → HTML
       final html = md.markdownToHtml(
         markdownContent,
@@ -28,12 +30,14 @@ class PdfService {
       );
 
       // Step 2: Wrap with minimal CSS for clean PDF output
-      final styledHtml = _wrapWithStyles(html, fileName);
+      final styledHtml = _wrapWithStyles(html, fileName, settings);
+
+      final format = settings.pageSize == 'Letter' ? PdfPageFormat.letter : PdfPageFormat.a4;
 
       // Step 3: Convert HTML → PDF bytes via Chromium/WebView renderer
       // ignore: deprecated_member_use
       final pdfBytes = await Printing.convertHtml(
-        format: PdfPageFormat.a4,
+        format: format,
         html: styledHtml,
       );
 
@@ -115,7 +119,19 @@ class PdfService {
     }
   }
 
-  String _wrapWithStyles(String html, String title) {
+  String _wrapWithStyles(String html, String title, PdfSettings settings) {
+    final isDark = settings.theme == 'Dark';
+    final bg = isDark ? '#1a1a1a' : '#ffffff';
+    final text = isDark ? '#e5e7eb' : '#1a1a1a';
+    final h1 = isDark ? '#ffffff' : '#111111';
+    final h2 = isDark ? '#f3f4f6' : '#1f2937';
+    final border = isDark ? '#374151' : '#e5e7eb';
+    final preBg = isDark ? '#111827' : '#1e293b';
+    final preText = isDark ? '#e5e7eb' : '#e2e8f0';
+    
+    final padding = settings.margins.startsWith('Normal') ? '96px' : '48px';
+    final baseSize = settings.fontSize;
+
     return '''
 <!DOCTYPE html>
 <html>
@@ -126,31 +142,32 @@ class PdfService {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
-      font-size: 14px;
+      font-size: ${baseSize}px;
       line-height: 1.7;
-      color: #1a1a1a;
-      padding: 40px 48px;
+      color: $text;
+      background-color: $bg;
+      padding: $padding;
       max-width: 100%;
     }
-    h1 { font-size: 28px; font-weight: 700; margin: 0 0 16px; color: #111; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
-    h2 { font-size: 22px; font-weight: 600; margin: 28px 0 12px; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
-    h3 { font-size: 18px; font-weight: 600; margin: 22px 0 8px; color: #374151; }
-    h4, h5, h6 { font-size: 15px; font-weight: 600; margin: 16px 0 6px; color: #4b5563; }
+    h1 { font-size: ${baseSize + 14}px; font-weight: 700; margin: 0 0 16px; color: $h1; border-bottom: 2px solid $border; padding-bottom: 10px; }
+    h2 { font-size: ${baseSize + 8}px; font-weight: 600; margin: 28px 0 12px; color: $h2; border-bottom: 1px solid $border; padding-bottom: 6px; }
+    h3 { font-size: ${baseSize + 4}px; font-weight: 600; margin: 22px 0 8px; color: $h2; }
+    h4, h5, h6 { font-size: ${baseSize + 1}px; font-weight: 600; margin: 16px 0 6px; color: $h2; }
     p { margin: 0 0 14px; }
     ul, ol { margin: 0 0 14px 24px; }
     li { margin: 4px 0; }
     code {
       font-family: 'Courier New', monospace;
-      font-size: 12.5px;
-      background: #f3f4f6;
-      border: 1px solid #e5e7eb;
+      font-size: ${baseSize - 1.5}px;
+      background: ${isDark ? '#374151' : '#f3f4f6'};
+      border: 1px solid $border;
       border-radius: 4px;
       padding: 1px 5px;
-      color: #dc2626;
+      color: ${isDark ? '#f87171' : '#dc2626'};
     }
     pre {
-      background: #1e293b;
-      color: #e2e8f0;
+      background: $preBg;
+      color: $preText;
       border-radius: 8px;
       padding: 16px;
       margin: 0 0 16px;
@@ -161,36 +178,36 @@ class PdfService {
       border: none;
       color: inherit;
       padding: 0;
-      font-size: 12.5px;
+      font-size: ${baseSize - 1.5}px;
     }
     blockquote {
       border-left: 4px solid #4F8EF7;
-      background: #eff6ff;
+      background: ${isDark ? '#1e3a8a' : '#eff6ff'};
       padding: 12px 16px;
       margin: 0 0 16px;
       border-radius: 0 6px 6px 0;
-      color: #1e40af;
+      color: ${isDark ? '#bfdbfe' : '#1e40af'};
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin: 0 0 16px;
-      font-size: 13px;
+      font-size: ${baseSize - 1}px;
     }
     th {
-      background: #f9fafb;
-      border: 1px solid #d1d5db;
+      background: ${isDark ? '#374151' : '#f9fafb'};
+      border: 1px solid $border;
       padding: 10px 14px;
       text-align: left;
       font-weight: 600;
     }
     td {
-      border: 1px solid #d1d5db;
+      border: 1px solid $border;
       padding: 8px 14px;
     }
-    tr:nth-child(even) td { background: #f9fafb; }
+    tr:nth-child(even) td { background: ${isDark ? '#374151' : '#f9fafb'}; }
     a { color: #4F8EF7; text-decoration: none; }
-    hr { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+    hr { border: none; border-top: 1px solid $border; margin: 24px 0; }
     img { max-width: 100%; height: auto; border-radius: 6px; }
     strong { font-weight: 600; }
     em { font-style: italic; }

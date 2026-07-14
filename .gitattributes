@@ -1,0 +1,5 @@
+# Ignore platform specific scaffolding for language statistics
+linux/** linguist-vendored
+macos/** linguist-vendored
+windows/** linguist-vendored
+web/** linguist-vendored

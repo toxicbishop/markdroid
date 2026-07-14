@@ -42,4 +42,4 @@ app.*.symbols
 app-*.info
 
 #Agent
-.agents/
+.agents

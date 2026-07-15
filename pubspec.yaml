@@ -33,11 +33,14 @@ dependencies:
   highlight: ^0.7.0
   flutter_highlight: ^0.7.0
   google_fonts: ^8.1.0
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
 
 flutter:
   uses-material-design: true

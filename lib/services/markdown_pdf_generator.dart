@@ -5,6 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:highlight/highlight.dart' show highlight, Node;
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
+import 'settings_service.dart';
 
 class MarkdownPdfGenerator {
   late pw.Font _regularFont;
@@ -24,8 +25,10 @@ class MarkdownPdfGenerator {
   };
 
   static const _codeBgColor = PdfColor.fromInt(0xFF1E1E1E);
-  static const _textColor = PdfColors.black;
-  static const _codeTextColor = PdfColors.white;
+
+  late PdfColor _textColor;
+  late PdfColor _codeTextColor;
+  late double _baseFontSize;
 
   Future<void> _initFonts() async {
     _regularFont = await PdfGoogleFonts.robotoRegular();
@@ -37,15 +40,37 @@ class MarkdownPdfGenerator {
   Future<File> generatePdf(String markdownText, String fileName) async {
     await _initFonts();
 
+    final settings = await SettingsService().getSettings();
+    _baseFontSize = settings.fontSize.toDouble();
+    _textColor = settings.theme == 'Dark' ? PdfColors.white : PdfColors.black;
+    _codeTextColor = PdfColors.white;
+
     final document = md.Document(extensionSet: md.ExtensionSet.gitHubFlavored);
     final nodes = document.parse(markdownText);
 
     final pdf = pw.Document();
 
+    final marginValue = settings.margins.contains('Narrow')
+        ? 12.7 * PdfPageFormat.mm
+        : 25.4 * PdfPageFormat.mm;
+    final pageFormat =
+        settings.pageSize == 'Letter' ? PdfPageFormat.letter : PdfPageFormat.a4;
+    final backgroundColor = settings.theme == 'Dark'
+        ? PdfColor.fromInt(0xFF121212)
+        : PdfColors.white;
+
     pdf.addPage(
       pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(32),
+        pageFormat: pageFormat,
+        margin: pw.EdgeInsets.all(marginValue),
+        pageTheme: pw.PageTheme(
+          pageFormat: pageFormat,
+          margin: pw.EdgeInsets.all(marginValue),
+          buildBackground: (context) => pw.FullPage(
+            ignoreMargins: true,
+            child: pw.Container(color: backgroundColor),
+          ),
+        ),
         build: (context) {
           return _buildNodes(nodes);
         },
@@ -77,7 +102,8 @@ class MarkdownPdfGenerator {
       return _buildElement(node);
     } else if (node is md.Text) {
       return pw.Text(node.text,
-          style: pw.TextStyle(font: _regularFont, color: _textColor));
+          style: pw.TextStyle(
+              font: _regularFont, color: _textColor, fontSize: _baseFontSize));
     }
     return null;
   }
@@ -132,49 +158,72 @@ class MarkdownPdfGenerator {
   }
 
   pw.Widget _buildHeading(String text, double size) {
+    final scaledSize = size + (_baseFontSize - 12);
     return pw.Padding(
       padding: const pw.EdgeInsets.only(top: 16, bottom: 8),
-      child:
-          pw.Text(text, style: pw.TextStyle(font: _boldFont, fontSize: size)),
+      child: pw.Text(text,
+          style: pw.TextStyle(
+              font: _boldFont, fontSize: scaledSize, color: _textColor)),
     );
   }
 
   pw.TextSpan _buildRichText(md.Node node, {pw.TextStyle? style}) {
     if (node is md.Text) {
       return pw.TextSpan(
-          text: node.text, style: style ?? pw.TextStyle(font: _regularFont));
+          text: node.text,
+          style: style ??
+              pw.TextStyle(
+                  font: _regularFont,
+                  color: _textColor,
+                  fontSize: _baseFontSize));
     } else if (node is md.Element) {
       switch (node.tag) {
         case 'strong':
         case 'b':
           return _buildRichTextChildren(node.children,
               style: style?.copyWith(font: _boldFont) ??
-                  pw.TextStyle(font: _boldFont));
+                  pw.TextStyle(
+                      font: _boldFont,
+                      color: _textColor,
+                      fontSize: _baseFontSize));
         case 'em':
         case 'i':
           return _buildRichTextChildren(node.children,
               style: style?.copyWith(font: _italicFont) ??
-                  pw.TextStyle(font: _italicFont));
+                  pw.TextStyle(
+                      font: _italicFont,
+                      color: _textColor,
+                      fontSize: _baseFontSize));
         case 'code':
           return pw.TextSpan(
             text: node.textContent,
             style: style?.copyWith(
-                    font: _monoFont,
-                    background:
-                        const pw.BoxDecoration(color: PdfColors.grey200)) ??
+                  font: _monoFont,
+                  color: const PdfColor.fromInt(0xFFEF4444),
+                  background: const pw.BoxDecoration(
+                    color: PdfColor.fromInt(0xFFF3F4F6),
+                  ),
+                ) ??
                 pw.TextStyle(
-                    font: _monoFont,
-                    background:
-                        const pw.BoxDecoration(color: PdfColors.grey200)),
+                  font: _monoFont,
+                  fontSize: _baseFontSize - 1,
+                  color: const PdfColor.fromInt(0xFFEF4444),
+                  background: const pw.BoxDecoration(
+                    color: PdfColor.fromInt(0xFFF3F4F6),
+                  ),
+                ),
           );
         case 'a':
           return _buildRichTextChildren(node.children,
               style: style?.copyWith(
                       color: PdfColors.blue,
                       decoration: pw.TextDecoration.underline) ??
-                  const pw.TextStyle(
-                      color: PdfColors.blue,
-                      decoration: pw.TextDecoration.underline));
+                  pw.TextStyle(
+                    font: _regularFont,
+                    fontSize: _baseFontSize,
+                    color: PdfColors.blue,
+                    decoration: pw.TextDecoration.underline,
+                  ));
         default:
           return _buildRichTextChildren(node.children, style: style);
       }

@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 import '../services/file_service.dart';
 import '../services/pdf_service.dart';
 import '../theme/app_theme.dart';
@@ -80,19 +82,101 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _pickAndConvert() async {
-    final file = await _fileService.pickMarkdownFile();
-    if (file == null) return;
+    final files = await _fileService.pickMultipleMarkdownFiles();
+    setState(() => _isConverting = false);
 
-    // Show preview first
-    if (!mounted) return;
-    final shouldConvert = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PreviewScreen(file: file),
+    if (files.isEmpty) return;
+
+    if (files.length == 1) {
+      await _processSingleFile(files.first);
+      return;
+    }
+
+    // Batch mode
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: context.appSurface,
+        title: Text('Batch Conversion',
+            style: TextStyle(color: context.appOnSurface)),
+        content: Text('Convert ${files.length} files to PDF?',
+            style: TextStyle(color: context.appOnSurfaceMuted)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel',
+                style: TextStyle(color: context.appOnSurfaceMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: context.appAccent,
+                foregroundColor: Colors.white),
+            child: const Text('Convert All'),
+          ),
+        ],
       ),
     );
 
-    if (shouldConvert != true) return;
+    if (confirmed != true) return;
+
+    setState(() => _isConverting = true);
+
+    // show progress dialog
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          backgroundColor: context.appSurface,
+          content: Row(
+            children: [
+              CircularProgressIndicator(color: context.appAccent),
+              const SizedBox(width: 20),
+              Text('Converting ${files.length} files...',
+                  style: TextStyle(color: context.appOnSurface)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    int successCount = 0;
+    for (var file in files) {
+      final result = await _pdfService.convertMarkdownToPdf(
+        markdownContent: file.content,
+        fileName: file.nameWithoutExtension,
+      );
+      if (result.success) successCount++;
+    }
+
+    // Hide progress dialog
+    if (mounted) Navigator.pop(context);
+
+    setState(() => _isConverting = false);
+
+    await _loadHistory();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Successfully converted $successCount of ${files.length} files',
+              style: TextStyle(color: context.appOnSurface)),
+          backgroundColor: context.appSurfaceVariant,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _processSingleFile(PickedMarkdownFile file) async {
+    final proceed = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => PreviewScreen(file: file)),
+    );
+
+    if (proceed != true) return;
 
     setState(() => _isConverting = true);
 
@@ -111,6 +195,103 @@ class _HomeScreenState extends State<HomeScreen> {
       _showSuccessSheet(result.outputPath!);
     } else {
       _showError(result.error ?? 'Conversion failed');
+    }
+  }
+
+  Future<void> _showUrlImportDialog() async {
+    final textController = TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: context.appSurface,
+        title: Text('Import from URL',
+            style: TextStyle(color: context.appOnSurface)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: textController,
+              style: TextStyle(color: context.appOnSurface),
+              decoration: InputDecoration(
+                hintText: 'https://raw.githubusercontent.com/...',
+                hintStyle: TextStyle(color: context.appOnSurfaceMuted),
+                filled: true,
+                fillColor: context.appSurfaceVariant,
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () async {
+                final data = await Clipboard.getData(Clipboard.kTextPlain);
+                if (data?.text != null) {
+                  textController.text = data!.text!;
+                }
+              },
+              icon:
+                  Icon(Icons.paste_rounded, color: context.appAccent, size: 18),
+              label: Text('Paste from Clipboard',
+                  style: TextStyle(color: context.appAccent)),
+              style: OutlinedButton.styleFrom(
+                side:
+                    BorderSide(color: context.appAccent.withValues(alpha: 0.5)),
+                minimumSize: const Size(double.infinity, 44),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel',
+                style: TextStyle(color: context.appOnSurfaceMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _importFromUrl(textController.text.trim());
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: context.appAccent,
+                foregroundColor: Colors.white),
+            child: const Text('Import'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _importFromUrl(String url) async {
+    if (url.isEmpty) return;
+    setState(() => _isConverting = true);
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final content = response.body;
+        var fileName = url
+            .split('/')
+            .lastWhere((e) => e.isNotEmpty, orElse: () => 'document')
+            .replaceAll(RegExp(r'[^\w\s\-\.]'), '');
+        if (fileName.isEmpty) fileName = 'document.md';
+        if (!fileName.endsWith('.md')) fileName += '.md';
+
+        final file = PickedMarkdownFile(
+          content: content,
+          nameWithoutExtension: fileName.substring(0, fileName.length - 3),
+          fileName: fileName,
+          sizeFormatted: '${(content.length / 1024).toStringAsFixed(1)} KB',
+        );
+        setState(() => _isConverting = false);
+        await _processSingleFile(file);
+      } else {
+        setState(() => _isConverting = false);
+        _showError('Failed to load URL: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() => _isConverting = false);
+      _showError('Network error: $e');
     }
   }
 
@@ -290,13 +471,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               subtitle: Text(
-                'Pick an existing Markdown file',
+                'Pick one or multiple Markdown files',
                 style:
                     TextStyle(color: context.appOnSurfaceMuted, fontSize: 13),
               ),
               onTap: () {
                 Navigator.pop(context);
                 if (!_isConverting) _pickAndConvert();
+              },
+            ),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: context.appAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.link_rounded, color: context.appAccent),
+              ),
+              title: Text(
+                'Import from URL',
+                style: TextStyle(
+                  color: context.appOnSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                'Download Markdown from GitHub or web',
+                style:
+                    TextStyle(color: context.appOnSurfaceMuted, fontSize: 13),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                if (!_isConverting) _showUrlImportDialog();
               },
             ),
             const SizedBox(height: 12),

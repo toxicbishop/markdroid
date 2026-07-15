@@ -29,11 +29,11 @@ class HistoryTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isNew
-              ? AppTheme.accent.withValues(alpha: 0.5)
+              ? context.appAccent.withValues(alpha: 0.5)
               : const Color(0xFF1E2D5A),
           width: isNew ? 1.5 : 1,
         ),
@@ -46,12 +46,12 @@ class HistoryTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppTheme.error.withValues(alpha: 0.12),
+                color: context.appError.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.picture_as_pdf_rounded,
-                color: AppTheme.error,
+                color: context.appError,
                 size: 22,
               ),
             ),
@@ -62,8 +62,8 @@ class HistoryTile extends StatelessWidget {
                 child: Container(
                   width: 10,
                   height: 10,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.success,
+                  decoration: BoxDecoration(
+                    color: context.appSuccess,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -72,8 +72,8 @@ class HistoryTile extends StatelessWidget {
         ),
         title: Text(
           entry.name,
-          style: const TextStyle(
-            color: AppTheme.onSurface,
+          style: TextStyle(
+            color: context.appOnSurface,
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -82,14 +82,14 @@ class HistoryTile extends StatelessWidget {
         ),
         subtitle: Text(
           '$size • $modified',
-          style: const TextStyle(
-            color: AppTheme.onSurfaceMuted,
+          style: TextStyle(
+            color: context.appOnSurfaceMuted,
             fontSize: 12,
           ),
         ),
         trailing: PopupMenuButton<String>(
-          color: AppTheme.surfaceVariant,
-          icon: const Icon(Icons.more_vert_rounded, color: AppTheme.onSurfaceMuted),
+          color: context.appSurfaceVariant,
+          icon: Icon(Icons.more_vert_rounded, color: context.appOnSurfaceMuted),
           onSelected: (value) {
             switch (value) {
               case 'open':
@@ -104,10 +104,10 @@ class HistoryTile extends StatelessWidget {
             }
           },
           itemBuilder: (_) => [
-            _menuItem('open', Icons.open_in_new_rounded, 'Open'),
-            _menuItem('share', Icons.share_rounded, 'Share'),
-            _menuItem('delete', Icons.delete_outline_rounded, 'Delete',
-                color: AppTheme.error),
+            _menuItem(context, 'open', Icons.open_in_new_rounded, 'Open'),
+            _menuItem(context, 'share', Icons.share_rounded, 'Share'),
+            _menuItem(context, 'delete', Icons.delete_outline_rounded, 'Delete',
+                color: context.appError),
           ],
         ),
         onTap: onOpen,
@@ -116,11 +116,13 @@ class HistoryTile extends StatelessWidget {
   }
 
   PopupMenuItem<String> _menuItem(
+    BuildContext context,
     String value,
     IconData icon,
     String label, {
-    Color color = AppTheme.onSurface,
+    Color? color,
   }) {
+    color ??= context.appOnSurface;
     return PopupMenuItem(
       value: value,
       child: Row(

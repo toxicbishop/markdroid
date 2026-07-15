@@ -32,16 +32,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_settings == null) {
-      return const Scaffold(
-        backgroundColor: AppTheme.primary,
-        body: Center(child: CircularProgressIndicator(color: AppTheme.accent)),
+      return Scaffold(
+        backgroundColor: context.appPrimary,
+        body: Center(child: CircularProgressIndicator(color: context.appAccent)),
       );
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.primary,
+      backgroundColor: context.appPrimary,
       appBar: AppBar(
-        title: const Text('PDF Settings'),
+        title: Text('PDF Settings'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -89,8 +89,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            color: AppTheme.onSurfaceMuted,
+          style: TextStyle(
+            color: context.appOnSurfaceMuted,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -99,17 +99,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
-            color: AppTheme.surface,
+            color: context.appSurface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF1E2D5A)),
+            border: Border.all(color: context.appOnSurfaceMuted.withValues(alpha: 0.3)),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
               isExpanded: true,
-              dropdownColor: AppTheme.surfaceVariant,
-              icon: const Icon(Icons.arrow_drop_down_rounded, color: AppTheme.onSurfaceMuted),
-              style: const TextStyle(color: AppTheme.onSurface, fontSize: 16),
+              dropdownColor: context.appSurfaceVariant,
+              icon: Icon(Icons.arrow_drop_down_rounded, color: context.appOnSurfaceMuted),
+              style: TextStyle(color: context.appOnSurface, fontSize: 16),
               items: items.map((item) {
                 return DropdownMenuItem(
                   value: item,

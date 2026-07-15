@@ -115,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showSuccessSheet(String path) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.surface,
+      backgroundColor: context.appSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -125,16 +125,16 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Center(
+            Center(
               child: Icon(Icons.check_circle_rounded,
-                  color: AppTheme.success, size: 52),
+                  color: context.appSuccess, size: 52),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'PDF created successfully',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppTheme.onSurface,
+                color: context.appOnSurface,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -143,8 +143,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               path.split('/').last,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppTheme.onSurfaceMuted,
+              style: TextStyle(
+                color: context.appOnSurfaceMuted,
                 fontSize: 13,
               ),
             ),
@@ -157,8 +157,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.pop(context);
                       _pdfService.openPdf(path);
                     },
-                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                    label: const Text('Open'),
+                    icon: Icon(Icons.open_in_new_rounded, size: 18),
+                    label: Text('Open'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -168,8 +168,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.pop(context);
                       _pdfService.sharePdf(path);
                     },
-                    icon: const Icon(Icons.share_rounded, size: 18),
-                    label: const Text('Share'),
+                    icon: Icon(Icons.share_rounded, size: 18),
+                    label: Text('Share'),
                   ),
                 ),
               ],
@@ -188,13 +188,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           : 'Could not save to Downloads',
                     ),
                     backgroundColor:
-                        r.success ? AppTheme.success : AppTheme.error,
+                        r.success ? context.appSuccess : context.appError,
                   ),
                 );
               },
-              child: const Text(
+              child: Text(
                 'Save to Downloads',
-                style: TextStyle(color: AppTheme.onSurfaceMuted),
+                style: TextStyle(color: context.appOnSurfaceMuted),
               ),
             ),
           ],
@@ -207,7 +207,94 @@ class _HomeScreenState extends State<HomeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Error: $message'),
-        backgroundColor: AppTheme.error,
+        backgroundColor: context.appError,
+      ),
+    );
+  }
+
+  void _showActionSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: context.appSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: context.appOnSurfaceMuted.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: context.appAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.edit_note_rounded, color: context.appAccent),
+              ),
+              title: Text(
+                'New File',
+                style: TextStyle(
+                  color: context.appOnSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                'Create and edit with built-in editor',
+                style: TextStyle(color: context.appOnSurfaceMuted, fontSize: 13),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EditorScreen()),
+                );
+                if (result is ConversionResult && result.success && result.outputPath != null) {
+                  setState(() => _lastConvertedPath = result.outputPath);
+                  await _loadHistory();
+                  _showSuccessSheet(result.outputPath!);
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: context.appAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.file_upload_rounded, color: context.appAccent),
+              ),
+              title: Text(
+                'Import .md',
+                style: TextStyle(
+                  color: context.appOnSurface,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: Text(
+                'Pick an existing Markdown file',
+                style: TextStyle(color: context.appOnSurfaceMuted, fontSize: 13),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                if (!_isConverting) _pickAndConvert();
+              },
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
     );
   }
@@ -216,21 +303,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
             Text(
               'Mark',
-              style: TextStyle(color: AppTheme.onSurface),
+              style: TextStyle(color: context.appOnSurface),
             ),
             Text(
               'droid',
-              style: TextStyle(color: AppTheme.accent),
+              style: TextStyle(color: context.appAccent),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_rounded),
+            icon: Icon(Icons.settings_rounded),
             tooltip: 'Settings',
             onPressed: () {
               Navigator.push(
@@ -241,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           if (_history.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_sweep_rounded),
+              icon: Icon(Icons.delete_sweep_rounded),
               tooltip: 'Clear history',
               onPressed: _confirmClearHistory,
             ),
@@ -249,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _loadHistory,
-        color: AppTheme.accent,
+        color: context.appAccent,
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
@@ -263,9 +350,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             if (_history.isEmpty)
-              const SliverFillRemaining(
+              SliverFillRemaining(
                 hasScrollBody: false,
-                child: EmptyState(),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: const EmptyState(),
+                ),
               )
             else ...[
               SliverPadding(
@@ -273,10 +363,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 sliver: SliverToBoxAdapter(
                   child: Row(
                     children: [
-                      const Text(
+                      Text(
                         'CONVERTED FILES',
                         style: TextStyle(
-                          color: AppTheme.onSurfaceMuted,
+                          color: context.appOnSurfaceMuted,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1.2,
@@ -285,8 +375,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Spacer(),
                       Text(
                         '${_history.length} file${_history.length == 1 ? '' : 's'}',
-                        style: const TextStyle(
-                          color: AppTheme.onSurfaceMuted,
+                        style: TextStyle(
+                          color: context.appOnSurfaceMuted,
                           fontSize: 12,
                         ),
                       ),
@@ -317,42 +407,26 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: 'create',
-            onPressed: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const EditorScreen()),
-              );
-              if (result is ConversionResult && result.success && result.outputPath != null) {
-                setState(() => _lastConvertedPath = result.outputPath);
-                await _loadHistory();
-                _showSuccessSheet(result.outputPath!);
-              }
-            },
-            child: const Icon(Icons.edit_note_rounded),
-          ),
-          const SizedBox(height: 16),
-          FloatingActionButton.extended(
-            heroTag: 'pick',
-            onPressed: _isConverting ? null : _pickAndConvert,
-            icon: _isConverting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.file_upload_rounded),
-            label: Text(_isConverting ? 'Converting…' : 'Import Markdown'),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'main_action',
+        onPressed: _isConverting ? null : _showActionSheet,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return ScaleTransition(scale: animation, child: child);
+          },
+          child: _isConverting
+              ? const SizedBox(
+                  key: ValueKey('converting'),
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Icon(Icons.add_rounded, key: ValueKey('add'), size: 28),
+        ),
       ),
     );
   }
@@ -361,19 +435,19 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppTheme.surface,
-        title: const Text(
+        backgroundColor: context.appSurface,
+        title: Text(
           'Clear all PDFs?',
-          style: TextStyle(color: AppTheme.onSurface),
+          style: TextStyle(color: context.appOnSurface),
         ),
-        content: const Text(
+        content: Text(
           'This will delete all converted PDFs from app storage. Files saved to Downloads are unaffected.',
-          style: TextStyle(color: AppTheme.onSurfaceMuted),
+          style: TextStyle(color: context.appOnSurfaceMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
@@ -384,7 +458,7 @@ class _HomeScreenState extends State<HomeScreen> {
               await _loadHistory();
             },
             child:
-                const Text('Delete all', style: TextStyle(color: AppTheme.error)),
+                Text('Delete all', style: TextStyle(color: context.appError)),
           ),
         ],
       ),

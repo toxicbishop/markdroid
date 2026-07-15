@@ -18,11 +18,11 @@ class ConversionCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: context.appSurface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isConverting
-                ? AppTheme.accent
+                ? context.appAccent
                 : const Color(0xFF1E2D5A),
             width: isConverting ? 1.5 : 1,
           ),
@@ -33,13 +33,13 @@ class ConversionCard extends StatelessWidget {
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: isConverting
-                  ? const SizedBox(
-                      key: ValueKey('loading'),
+                  ? SizedBox(
+                      key: const ValueKey('loading'),
                       width: 48,
                       height: 48,
                       child: CircularProgressIndicator(
                         strokeWidth: 3,
-                        color: AppTheme.accent,
+                        color: context.appAccent,
                       ),
                     )
                   : Container(
@@ -47,12 +47,12 @@ class ConversionCard extends StatelessWidget {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: AppTheme.accent.withValues(alpha: 0.12),
+                        color: context.appAccent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.upload_file_rounded,
-                        color: AppTheme.accent,
+                        color: context.appAccent,
                         size: 32,
                       ),
                     ),
@@ -60,8 +60,8 @@ class ConversionCard extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               isConverting ? 'Converting to PDF…' : 'Pick a Markdown file',
-              style: const TextStyle(
-                color: AppTheme.onSurface,
+              style: TextStyle(
+                color: context.appOnSurface,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),
@@ -71,8 +71,8 @@ class ConversionCard extends StatelessWidget {
               isConverting
                   ? 'This usually takes a second'
                   : 'Supports .md, .markdown, and .txt',
-              style: const TextStyle(
-                color: AppTheme.onSurfaceMuted,
+              style: TextStyle(
+                color: context.appOnSurfaceMuted,
                 fontSize: 13,
               ),
             ),
@@ -81,11 +81,11 @@ class ConversionCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _formatBadge('GFM Tables'),
+                  _formatBadge(context, 'GFM Tables'),
                   const SizedBox(width: 8),
-                  _formatBadge('Code blocks'),
+                  _formatBadge(context, 'Code blocks'),
                   const SizedBox(width: 8),
-                  _formatBadge('Blockquotes'),
+                  _formatBadge(context, 'Blockquotes'),
                 ],
               ),
             ],
@@ -95,21 +95,21 @@ class ConversionCard extends StatelessWidget {
     );
   }
 
-  Widget _formatBadge(String label) {
+  Widget _formatBadge(BuildContext context, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.accent.withValues(alpha: 0.1),
+        color: context.appAccent.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.accent.withValues(alpha: 0.3),
+          color: context.appAccent.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: AppTheme.accent,
+        style: TextStyle(
+          color: context.appAccent,
           fontSize: 11,
           fontWeight: FontWeight.w500,
         ),

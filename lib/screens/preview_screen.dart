@@ -31,7 +31,7 @@ class _PreviewScreenState extends State<PreviewScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.primary,
+      backgroundColor: context.appPrimary,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,18 +42,18 @@ class _PreviewScreenState extends State<PreviewScreen>
             ),
             Text(
               widget.file.sizeFormatted,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppTheme.onSurfaceMuted,
+                color: context.appOnSurfaceMuted,
               ),
             ),
           ],
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: AppTheme.accent,
-          labelColor: AppTheme.accent,
-          unselectedLabelColor: AppTheme.onSurfaceMuted,
+          indicatorColor: context.appAccent,
+          labelColor: context.appAccent,
+          unselectedLabelColor: context.appOnSurfaceMuted,
           tabs: const [
             Tab(text: 'Preview'),
             Tab(text: 'Source'),
@@ -111,7 +111,7 @@ class _PreviewScreenState extends State<PreviewScreen>
                         color: const Color(0xFFeff6ff),
                         border: Border(
                           left: BorderSide(
-                            color: AppTheme.accent,
+                            color: context.appAccent,
                             width: 4,
                           ),
                         ),
@@ -141,7 +141,7 @@ class _PreviewScreenState extends State<PreviewScreen>
           ),
           // Bottom action bar
           Container(
-            color: AppTheme.surface,
+            color: context.appSurface,
             padding: EdgeInsets.fromLTRB(
               16,
               16,

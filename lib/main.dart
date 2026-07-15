@@ -10,10 +10,10 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   final prefs = await SharedPreferences.getInstance();
   final savedTheme = prefs.getString('app_theme') ?? 'System';
-  
+
   runApp(MarkdroidApp(initialTheme: _parseThemeMode(savedTheme)));
 }
 

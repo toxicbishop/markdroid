@@ -43,27 +43,29 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _handleIncomingFile(String path) async {
     final file = File(path);
     if (!await file.exists()) return;
-    
+
     final content = await file.readAsString();
     final stat = await file.stat();
-    
+
     final pickedFile = PickedMarkdownFile(
       content: content,
       fileName: path.split('/').last,
       filePath: path,
       sizeBytes: stat.size,
     );
-    
+
     if (!mounted) return;
-    
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => EditorScreen(initialFile: pickedFile),
       ),
     );
-    
-    if (result is ConversionResult && result.success && result.outputPath != null) {
+
+    if (result is ConversionResult &&
+        result.success &&
+        result.outputPath != null) {
       setState(() => _lastConvertedPath = result.outputPath);
       await _loadHistory();
       _showSuccessSheet(result.outputPath!);
@@ -251,7 +253,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               subtitle: Text(
                 'Create and edit with built-in editor',
-                style: TextStyle(color: context.appOnSurfaceMuted, fontSize: 13),
+                style:
+                    TextStyle(color: context.appOnSurfaceMuted, fontSize: 13),
               ),
               onTap: () async {
                 Navigator.pop(context);
@@ -259,7 +262,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(builder: (_) => const EditorScreen()),
                 );
-                if (result is ConversionResult && result.success && result.outputPath != null) {
+                if (result is ConversionResult &&
+                    result.success &&
+                    result.outputPath != null) {
                   setState(() => _lastConvertedPath = result.outputPath);
                   await _loadHistory();
                   _showSuccessSheet(result.outputPath!);
@@ -274,7 +279,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: context.appAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.file_upload_rounded, color: context.appAccent),
+                child:
+                    Icon(Icons.file_upload_rounded, color: context.appAccent),
               ),
               title: Text(
                 'Import .md',
@@ -285,7 +291,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               subtitle: Text(
                 'Pick an existing Markdown file',
-                style: TextStyle(color: context.appOnSurfaceMuted, fontSize: 13),
+                style:
+                    TextStyle(color: context.appOnSurfaceMuted, fontSize: 13),
               ),
               onTap: () {
                 Navigator.pop(context);

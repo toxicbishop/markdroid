@@ -10,10 +10,11 @@ class CodeElementBuilder extends MarkdownElementBuilder {
   @override
   Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
     String language = '';
-    if (element.attributes['class'] != null && element.attributes['class']!.startsWith('language-')) {
+    if (element.attributes['class'] != null &&
+        element.attributes['class']!.startsWith('language-')) {
       language = element.attributes['class']!.substring(9);
     }
-    
+
     // Fallback for inline code (no language, single line)
     if (language.isEmpty && !element.textContent.contains('\n')) {
       return null; // let flutter_markdown handle it as inline code

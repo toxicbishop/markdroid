@@ -54,7 +54,8 @@ class MarkdownPdfGenerator {
 
     final bytes = await pdf.save();
     final dir = await getApplicationDocumentsDirectory();
-    final safeName = fileName.replaceAll(RegExp(r'[^\w\s\-]'), '').replaceAll(' ', '_');
+    final safeName =
+        fileName.replaceAll(RegExp(r'[^\w\s\-]'), '').replaceAll(' ', '_');
     final file = File('${dir.path}/$safeName.pdf');
     await file.writeAsBytes(bytes);
     return file;
@@ -75,7 +76,8 @@ class MarkdownPdfGenerator {
     if (node is md.Element) {
       return _buildElement(node);
     } else if (node is md.Text) {
-      return pw.Text(node.text, style: pw.TextStyle(font: _regularFont, color: _textColor));
+      return pw.Text(node.text,
+          style: pw.TextStyle(font: _regularFont, color: _textColor));
     }
     return null;
   }
@@ -111,10 +113,13 @@ class MarkdownPdfGenerator {
           margin: const pw.EdgeInsets.only(bottom: 12),
           padding: const pw.EdgeInsets.only(left: 12, top: 4, bottom: 4),
           decoration: const pw.BoxDecoration(
-            border: pw.Border(left: pw.BorderSide(color: PdfColors.grey400, width: 4)),
+            border: pw.Border(
+                left: pw.BorderSide(color: PdfColors.grey400, width: 4)),
           ),
           child: pw.RichText(
-            text: _buildRichText(element, style: pw.TextStyle(font: _italicFont, color: PdfColors.grey700)),
+            text: _buildRichText(element,
+                style:
+                    pw.TextStyle(font: _italicFont, color: PdfColors.grey700)),
           ),
         );
       case 'hr':
@@ -129,31 +134,47 @@ class MarkdownPdfGenerator {
   pw.Widget _buildHeading(String text, double size) {
     return pw.Padding(
       padding: const pw.EdgeInsets.only(top: 16, bottom: 8),
-      child: pw.Text(text, style: pw.TextStyle(font: _boldFont, fontSize: size)),
+      child:
+          pw.Text(text, style: pw.TextStyle(font: _boldFont, fontSize: size)),
     );
   }
 
   pw.TextSpan _buildRichText(md.Node node, {pw.TextStyle? style}) {
     if (node is md.Text) {
-      return pw.TextSpan(text: node.text, style: style ?? pw.TextStyle(font: _regularFont));
+      return pw.TextSpan(
+          text: node.text, style: style ?? pw.TextStyle(font: _regularFont));
     } else if (node is md.Element) {
       switch (node.tag) {
         case 'strong':
         case 'b':
-          return _buildRichTextChildren(node.children, style: style?.copyWith(font: _boldFont) ?? pw.TextStyle(font: _boldFont));
+          return _buildRichTextChildren(node.children,
+              style: style?.copyWith(font: _boldFont) ??
+                  pw.TextStyle(font: _boldFont));
         case 'em':
         case 'i':
-          return _buildRichTextChildren(node.children, style: style?.copyWith(font: _italicFont) ?? pw.TextStyle(font: _italicFont));
+          return _buildRichTextChildren(node.children,
+              style: style?.copyWith(font: _italicFont) ??
+                  pw.TextStyle(font: _italicFont));
         case 'code':
           return pw.TextSpan(
             text: node.textContent,
-            style: style?.copyWith(font: _monoFont, background: const pw.BoxDecoration(color: PdfColors.grey200)) ??
-                   pw.TextStyle(font: _monoFont, background: const pw.BoxDecoration(color: PdfColors.grey200)),
+            style: style?.copyWith(
+                    font: _monoFont,
+                    background:
+                        const pw.BoxDecoration(color: PdfColors.grey200)) ??
+                pw.TextStyle(
+                    font: _monoFont,
+                    background:
+                        const pw.BoxDecoration(color: PdfColors.grey200)),
           );
         case 'a':
           return _buildRichTextChildren(node.children,
-              style: style?.copyWith(color: PdfColors.blue, decoration: pw.TextDecoration.underline) ??
-                     const pw.TextStyle(color: PdfColors.blue, decoration: pw.TextDecoration.underline));
+              style: style?.copyWith(
+                      color: PdfColors.blue,
+                      decoration: pw.TextDecoration.underline) ??
+                  const pw.TextStyle(
+                      color: PdfColors.blue,
+                      decoration: pw.TextDecoration.underline));
         default:
           return _buildRichTextChildren(node.children, style: style);
       }
@@ -161,7 +182,8 @@ class MarkdownPdfGenerator {
     return const pw.TextSpan();
   }
 
-  pw.TextSpan _buildRichTextChildren(List<md.Node>? children, {pw.TextStyle? style}) {
+  pw.TextSpan _buildRichTextChildren(List<md.Node>? children,
+      {pw.TextStyle? style}) {
     if (children == null) return const pw.TextSpan();
     return pw.TextSpan(
       children: children.map((c) => _buildRichText(c, style: style)).toList(),
@@ -194,7 +216,11 @@ class MarkdownPdfGenerator {
       final highlighted = highlight.parse(codeText, language: language);
       spans = _convertHighlightNodes(highlighted.nodes);
     } else {
-      spans = [pw.TextSpan(text: codeText, style: pw.TextStyle(font: _monoFont, color: _codeTextColor))];
+      spans = [
+        pw.TextSpan(
+            text: codeText,
+            style: pw.TextStyle(font: _monoFont, color: _codeTextColor))
+      ];
     }
 
     return pw.Container(
@@ -267,14 +293,16 @@ class MarkdownPdfGenerator {
     }
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 8, left: 16),
-      child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: items),
+      child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start, children: items),
     );
   }
 
   pw.Widget _buildTable(md.Element table) {
     final rows = <pw.TableRow>[];
     for (final child in table.children ?? []) {
-      if (child is md.Element && (child.tag == 'thead' || child.tag == 'tbody')) {
+      if (child is md.Element &&
+          (child.tag == 'thead' || child.tag == 'tbody')) {
         for (final tr in child.children ?? []) {
           if (tr is md.Element && tr.tag == 'tr') {
             final cells = <pw.Widget>[];
@@ -284,9 +312,10 @@ class MarkdownPdfGenerator {
                 cells.add(pw.Padding(
                   padding: const pw.EdgeInsets.all(8),
                   child: pw.RichText(
-                    text: _buildRichText(td, style: pw.TextStyle(
-                      font: isHeader ? _boldFont : _regularFont,
-                    )),
+                    text: _buildRichText(td,
+                        style: pw.TextStyle(
+                          font: isHeader ? _boldFont : _regularFont,
+                        )),
                   ),
                 ));
               }
@@ -294,7 +323,8 @@ class MarkdownPdfGenerator {
             if (cells.isNotEmpty) {
               rows.add(pw.TableRow(
                 decoration: const pw.BoxDecoration(
-                  border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300)),
+                  border: pw.Border(
+                      bottom: pw.BorderSide(color: PdfColors.grey300)),
                 ),
                 children: cells,
               ));

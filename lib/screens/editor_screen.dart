@@ -26,14 +26,15 @@ class _EditorScreenState extends State<EditorScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _textController = TextEditingController(text: widget.initialFile?.content ?? '');
+    _textController =
+        TextEditingController(text: widget.initialFile?.content ?? '');
     _focusNode = FocusNode();
-    
+
     // Auto focus on edit if it's a new file
     if (widget.initialFile == null) {
       _focusNode.requestFocus();
     }
-    
+
     _tabController.addListener(() {
       if (_tabController.index == 1) {
         // hide keyboard when switching to preview
@@ -56,7 +57,7 @@ class _EditorScreenState extends State<EditorScreen>
   void _insertText(String prefix, [String suffix = '']) {
     final text = _textController.text;
     final selection = _textController.selection;
-    
+
     if (selection.start == -1) {
       _textController.text = text + prefix + suffix;
       _textController.selection = TextSelection.collapsed(
@@ -67,18 +68,22 @@ class _EditorScreenState extends State<EditorScreen>
     final start = selection.start;
     final end = selection.end;
     final selectedText = text.substring(start, end);
-    
-    final newText = text.replaceRange(start, end, '$prefix$selectedText$suffix');
+
+    final newText =
+        text.replaceRange(start, end, '$prefix$selectedText$suffix');
     _textController.value = TextEditingValue(
       text: newText,
-      selection: TextSelection.collapsed(offset: start + prefix.length + selectedText.length),
+      selection: TextSelection.collapsed(
+          offset: start + prefix.length + selectedText.length),
     );
   }
 
   Future<void> _convertToPdf() async {
     if (_textController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cannot convert empty file'), backgroundColor: context.appError),
+        SnackBar(
+            content: Text('Cannot convert empty file'),
+            backgroundColor: context.appError),
       );
       return;
     }
@@ -94,14 +99,16 @@ class _EditorScreenState extends State<EditorScreen>
           final controller = TextEditingController(text: fileName);
           return AlertDialog(
             backgroundColor: context.appSurface,
-            title: Text('Save PDF as', style: TextStyle(color: context.appOnSurface)),
+            title: Text('Save PDF as',
+                style: TextStyle(color: context.appOnSurface)),
             content: TextField(
               controller: controller,
               style: TextStyle(color: context.appOnSurface),
               decoration: InputDecoration(
                 hintText: 'Filename',
                 hintStyle: TextStyle(color: context.appOnSurfaceMuted),
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.appAccent)),
+                enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: context.appAccent)),
               ),
               autofocus: true,
             ),
@@ -154,8 +161,12 @@ class _EditorScreenState extends State<EditorScreen>
         ),
         actions: [
           IconButton(
-            icon: _isConverting 
-                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: context.appAccent))
+            icon: _isConverting
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: context.appAccent))
                 : Icon(Icons.picture_as_pdf_rounded, color: context.appAccent),
             onPressed: _isConverting ? null : _convertToPdf,
             tooltip: 'Convert to PDF',
@@ -184,7 +195,8 @@ class _EditorScreenState extends State<EditorScreen>
                         ),
                         decoration: InputDecoration(
                           hintText: 'Type markdown here...',
-                          hintStyle: TextStyle(color: context.appOnSurfaceMuted),
+                          hintStyle:
+                              TextStyle(color: context.appOnSurfaceMuted),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.all(16),
                         ),
@@ -198,16 +210,39 @@ class _EditorScreenState extends State<EditorScreen>
                       child: Markdown(
                         data: _textController.text,
                         styleSheet: MarkdownStyleSheet(
-                          h1: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: context.appOnSurface),
-                          h2: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: context.appOnSurface),
-                          h3: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: context.appOnSurface),
-                          p: TextStyle(fontSize: 15, color: context.appOnSurface, height: 1.6),
-                          code: TextStyle(fontFamily: 'monospace', fontSize: 13, color: context.appError, backgroundColor: context.appSurfaceVariant),
-                          codeblockDecoration: BoxDecoration(color: context.appSurfaceVariant, borderRadius: BorderRadius.circular(8)),
-                          blockquote: TextStyle(fontSize: 15, color: context.appAccent, fontStyle: FontStyle.italic),
+                          h1: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w700,
+                              color: context.appOnSurface),
+                          h2: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: context.appOnSurface),
+                          h3: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                              color: context.appOnSurface),
+                          p: TextStyle(
+                              fontSize: 15,
+                              color: context.appOnSurface,
+                              height: 1.6),
+                          code: TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 13,
+                              color: context.appError,
+                              backgroundColor: context.appSurfaceVariant),
+                          codeblockDecoration: BoxDecoration(
+                              color: context.appSurfaceVariant,
+                              borderRadius: BorderRadius.circular(8)),
+                          blockquote: TextStyle(
+                              fontSize: 15,
+                              color: context.appAccent,
+                              fontStyle: FontStyle.italic),
                           blockquoteDecoration: BoxDecoration(
                             color: context.appAccent.withValues(alpha: 0.1),
-                            border: Border(left: BorderSide(color: context.appAccent, width: 4)),
+                            border: Border(
+                                left: BorderSide(
+                                    color: context.appAccent, width: 4)),
                           ),
                         ),
                         padding: const EdgeInsets.all(20),
@@ -219,27 +254,78 @@ class _EditorScreenState extends State<EditorScreen>
           if (_tabController.index == 0) // Only show in Edit mode
             Container(
               color: context.appSurface,
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 0 : MediaQuery.of(context).padding.bottom),
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom > 0
+                      ? 0
+                      : MediaQuery.of(context).padding.bottom),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Row(
                   children: [
-                    _ToolbarButton(icon: Icons.format_bold_rounded, tooltip: 'Bold', onPressed: () => _insertText('**', '**')),
-                    _ToolbarButton(icon: Icons.format_italic_rounded, tooltip: 'Italic', onPressed: () => _insertText('*', '*')),
-                    _ToolbarButton(icon: Icons.strikethrough_s_rounded, tooltip: 'Strikethrough', onPressed: () => _insertText('~~', '~~')),
-                    Container(width: 1, height: 24, color: context.appOnSurfaceMuted.withValues(alpha: 0.3), margin: EdgeInsets.symmetric(horizontal: 4)),
-                    _ToolbarButton(icon: Icons.title_rounded, tooltip: 'Heading 1', onPressed: () => _insertText('# ')),
-                    _ToolbarButton(icon: Icons.format_size_rounded, tooltip: 'Heading 2', onPressed: () => _insertText('## ')),
-                    Container(width: 1, height: 24, color: context.appOnSurfaceMuted.withValues(alpha: 0.3), margin: EdgeInsets.symmetric(horizontal: 4)),
-                    _ToolbarButton(icon: Icons.format_list_bulleted_rounded, tooltip: 'Bulleted List', onPressed: () => _insertText('- ')),
-                    _ToolbarButton(icon: Icons.format_list_numbered_rounded, tooltip: 'Numbered List', onPressed: () => _insertText('1. ')),
-                    _ToolbarButton(icon: Icons.check_box_outline_blank_rounded, tooltip: 'Task List', onPressed: () => _insertText('- [ ] ')),
-                    Container(width: 1, height: 24, color: context.appOnSurfaceMuted.withValues(alpha: 0.3), margin: EdgeInsets.symmetric(horizontal: 4)),
-                    _ToolbarButton(icon: Icons.code_rounded, tooltip: 'Code', onPressed: () => _insertText('`', '`')),
-                    _ToolbarButton(icon: Icons.data_object_rounded, tooltip: 'Code Block', onPressed: () => _insertText('\n```\n', '\n```\n')),
-                    _ToolbarButton(icon: Icons.format_quote_rounded, tooltip: 'Quote', onPressed: () => _insertText('> ')),
-                    _ToolbarButton(icon: Icons.link_rounded, tooltip: 'Link', onPressed: () => _insertText('[', '](url)')),
+                    _ToolbarButton(
+                        icon: Icons.format_bold_rounded,
+                        tooltip: 'Bold',
+                        onPressed: () => _insertText('**', '**')),
+                    _ToolbarButton(
+                        icon: Icons.format_italic_rounded,
+                        tooltip: 'Italic',
+                        onPressed: () => _insertText('*', '*')),
+                    _ToolbarButton(
+                        icon: Icons.strikethrough_s_rounded,
+                        tooltip: 'Strikethrough',
+                        onPressed: () => _insertText('~~', '~~')),
+                    Container(
+                        width: 1,
+                        height: 24,
+                        color: context.appOnSurfaceMuted.withValues(alpha: 0.3),
+                        margin: EdgeInsets.symmetric(horizontal: 4)),
+                    _ToolbarButton(
+                        icon: Icons.title_rounded,
+                        tooltip: 'Heading 1',
+                        onPressed: () => _insertText('# ')),
+                    _ToolbarButton(
+                        icon: Icons.format_size_rounded,
+                        tooltip: 'Heading 2',
+                        onPressed: () => _insertText('## ')),
+                    Container(
+                        width: 1,
+                        height: 24,
+                        color: context.appOnSurfaceMuted.withValues(alpha: 0.3),
+                        margin: EdgeInsets.symmetric(horizontal: 4)),
+                    _ToolbarButton(
+                        icon: Icons.format_list_bulleted_rounded,
+                        tooltip: 'Bulleted List',
+                        onPressed: () => _insertText('- ')),
+                    _ToolbarButton(
+                        icon: Icons.format_list_numbered_rounded,
+                        tooltip: 'Numbered List',
+                        onPressed: () => _insertText('1. ')),
+                    _ToolbarButton(
+                        icon: Icons.check_box_outline_blank_rounded,
+                        tooltip: 'Task List',
+                        onPressed: () => _insertText('- [ ] ')),
+                    Container(
+                        width: 1,
+                        height: 24,
+                        color: context.appOnSurfaceMuted.withValues(alpha: 0.3),
+                        margin: EdgeInsets.symmetric(horizontal: 4)),
+                    _ToolbarButton(
+                        icon: Icons.code_rounded,
+                        tooltip: 'Code',
+                        onPressed: () => _insertText('`', '`')),
+                    _ToolbarButton(
+                        icon: Icons.data_object_rounded,
+                        tooltip: 'Code Block',
+                        onPressed: () => _insertText('\n```\n', '\n```\n')),
+                    _ToolbarButton(
+                        icon: Icons.format_quote_rounded,
+                        tooltip: 'Quote',
+                        onPressed: () => _insertText('> ')),
+                    _ToolbarButton(
+                        icon: Icons.link_rounded,
+                        tooltip: 'Link',
+                        onPressed: () => _insertText('[', '](url)')),
                   ],
                 ),
               ),
@@ -255,7 +341,8 @@ class _ToolbarButton extends StatelessWidget {
   final String tooltip;
   final VoidCallback onPressed;
 
-  const _ToolbarButton({required this.icon, required this.tooltip, required this.onPressed});
+  const _ToolbarButton(
+      {required this.icon, required this.tooltip, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

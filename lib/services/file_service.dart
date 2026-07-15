@@ -14,12 +14,14 @@ class PickedMarkdownFile {
     required this.sizeBytes,
   });
 
-  String get nameWithoutExtension =>
-      fileName.endsWith('.md') ? fileName.substring(0, fileName.length - 3) : fileName;
+  String get nameWithoutExtension => fileName.endsWith('.md')
+      ? fileName.substring(0, fileName.length - 3)
+      : fileName;
 
   String get sizeFormatted {
     if (sizeBytes < 1024) return '$sizeBytes B';
-    if (sizeBytes < 1024 * 1024) return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
+    if (sizeBytes < 1024 * 1024)
+      return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
     return '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 }

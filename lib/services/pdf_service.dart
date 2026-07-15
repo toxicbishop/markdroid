@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:open_file/open_file.dart';
 import 'markdown_pdf_generator.dart';
+
 class ConversionResult {
   final bool success;
   final String? outputPath;
@@ -68,10 +69,7 @@ class PdfService {
   /// List all previously converted PDFs
   Future<List<FileSystemEntity>> listConvertedPdfs() async {
     final dir = await getApplicationDocumentsDirectory();
-    final files = dir
-        .listSync()
-        .where((f) => f.path.endsWith('.pdf'))
-        .toList()
+    final files = dir.listSync().where((f) => f.path.endsWith('.pdf')).toList()
       ..sort((a, b) {
         final aStat = File(a.path).statSync();
         final bStat = File(b.path).statSync();

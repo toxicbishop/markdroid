@@ -56,7 +56,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_settings == null) {
       return Scaffold(
         backgroundColor: context.appPrimary,
-        body: Center(child: CircularProgressIndicator(color: context.appAccent)),
+        body:
+            Center(child: CircularProgressIndicator(color: context.appAccent)),
       );
     }
 
@@ -91,28 +92,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'PDF Page Size',
             value: _settings!.pageSize,
             items: const ['A4', 'Letter'],
-            onChanged: (val) => _updateSettings(_settings!.copyWith(pageSize: val)),
+            onChanged: (val) =>
+                _updateSettings(_settings!.copyWith(pageSize: val)),
           ),
           const SizedBox(height: 16),
           _buildDropdownSection(
             title: 'PDF Base Font Size',
             value: _settings!.fontSize.toString(),
             items: const ['10', '12', '14', '16', '18'],
-            onChanged: (val) => _updateSettings(_settings!.copyWith(fontSize: int.parse(val!))),
+            onChanged: (val) =>
+                _updateSettings(_settings!.copyWith(fontSize: int.parse(val!))),
           ),
           const SizedBox(height: 16),
           _buildDropdownSection(
             title: 'PDF Theme',
             value: _settings!.theme,
             items: const ['Light', 'Dark'],
-            onChanged: (val) => _updateSettings(_settings!.copyWith(theme: val)),
+            onChanged: (val) =>
+                _updateSettings(_settings!.copyWith(theme: val)),
           ),
           const SizedBox(height: 16),
           _buildDropdownSection(
             title: 'Margins',
             value: _settings!.margins,
             items: const ['Normal (25.4mm)', 'Narrow (12.7mm)'],
-            onChanged: (val) => _updateSettings(_settings!.copyWith(margins: val)),
+            onChanged: (val) =>
+                _updateSettings(_settings!.copyWith(margins: val)),
           ),
         ],
       ),
@@ -142,14 +147,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           decoration: BoxDecoration(
             color: context.appSurface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: context.appOnSurfaceMuted.withValues(alpha: 0.3)),
+            border: Border.all(
+                color: context.appOnSurfaceMuted.withValues(alpha: 0.3)),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: value,
               isExpanded: true,
               dropdownColor: context.appSurfaceVariant,
-              icon: Icon(Icons.arrow_drop_down_rounded, color: context.appOnSurfaceMuted),
+              icon: Icon(Icons.arrow_drop_down_rounded,
+                  color: context.appOnSurfaceMuted),
               style: TextStyle(color: context.appOnSurface, fontSize: 16),
               items: items.map((item) {
                 return DropdownMenuItem(

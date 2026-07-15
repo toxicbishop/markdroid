@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../services/settings_service.dart';
 import '../theme/app_theme.dart';
 
@@ -29,6 +30,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await _settingsService.saveSettings(newSettings);
   }
 
+  Future<void> _updateAppTheme(String val) async {
+    final markdroidApp = MarkdroidApp.of(context);
+    ThemeMode mode;
+    if (val == 'Light') {
+      mode = ThemeMode.light;
+    } else if (val == 'Dark') {
+      mode = ThemeMode.dark;
+    } else {
+      mode = ThemeMode.system;
+    }
+    await markdroidApp.setTheme(mode, val);
+    if (mounted) setState(() {});
+  }
+
+  String _getAppThemeString() {
+    final mode = MarkdroidApp.of(context).currentTheme;
+    if (mode == ThemeMode.light) return 'Light';
+    if (mode == ThemeMode.dark) return 'Dark';
+    return 'System';
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_settings == null) {
@@ -47,21 +69,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           _buildDropdownSection(
-            title: 'Page Size',
+            title: 'App Theme',
+            value: _getAppThemeString(),
+            items: const ['System', 'Light', 'Dark'],
+            onChanged: (val) => _updateAppTheme(val!),
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 16),
+          Text(
+            'PDF EXPORT',
+            style: TextStyle(
+              color: context.appAccent,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildDropdownSection(
+            title: 'PDF Page Size',
             value: _settings!.pageSize,
             items: const ['A4', 'Letter'],
             onChanged: (val) => _updateSettings(_settings!.copyWith(pageSize: val)),
           ),
           const SizedBox(height: 16),
           _buildDropdownSection(
-            title: 'Base Font Size',
+            title: 'PDF Base Font Size',
             value: _settings!.fontSize.toString(),
             items: const ['10', '12', '14', '16', '18'],
             onChanged: (val) => _updateSettings(_settings!.copyWith(fontSize: int.parse(val!))),
           ),
           const SizedBox(height: 16),
           _buildDropdownSection(
-            title: 'Theme',
+            title: 'PDF Theme',
             value: _settings!.theme,
             items: const ['Light', 'Dark'],
             onChanged: (val) => _updateSettings(_settings!.copyWith(theme: val)),

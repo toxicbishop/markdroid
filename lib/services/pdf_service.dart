@@ -3,7 +3,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:open_file/open_file.dart';
 import 'package:markdown_2_pdf/markdown_2_pdf.dart';
-import 'settings_service.dart';
 class ConversionResult {
   final bool success;
   final String? outputPath;

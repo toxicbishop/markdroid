@@ -2,6 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import '../services/file_service.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_highlight/flutter_highlight.dart';
+import 'package:flutter_highlight/themes/atom-one-dark.dart';
+import 'package:markdown/markdown.dart' as md;
+
+class CodeElementBuilder extends MarkdownElementBuilder {
+  @override
+  Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
+    String language = '';
+    if (element.attributes['class'] != null && element.attributes['class']!.startsWith('language-')) {
+      language = element.attributes['class']!.substring(9);
+    }
+    
+    // Fallback for inline code (no language, single line)
+    if (language.isEmpty && !element.textContent.contains('\n')) {
+      return null; // let flutter_markdown handle it as inline code
+    }
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1e293b),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: HighlightView(
+        element.textContent,
+        language: language.isEmpty ? 'plaintext' : language,
+        theme: atomOneDarkTheme,
+        padding: const EdgeInsets.all(16),
+        textStyle: const TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+}
 
 class PreviewScreen extends StatefulWidget {
   final PickedMarkdownFile file;
@@ -71,6 +108,9 @@ class _PreviewScreenState extends State<PreviewScreen>
                   color: Colors.white,
                   child: Markdown(
                     data: widget.file.content,
+                    builders: {
+                      'code': CodeElementBuilder(),
+                    },
                     styleSheet: MarkdownStyleSheet(
                       h1: const TextStyle(
                         fontSize: 26,

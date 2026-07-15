@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:open_file/open_file.dart';
-import 'package:markdown_2_pdf/markdown_2_pdf.dart';
+import 'markdown_pdf_generator.dart';
 class ConversionResult {
   final bool success;
   final String? outputPath;
@@ -18,29 +18,10 @@ class PdfService {
     required String fileName,
   }) async {
     try {
-      // Step 1: Use native Markdown to PDF rendering instead of HTML/WebView
-      // This bypasses the Android WebView which is blocked on Vivo/Oppo devices
-      final source = StringMarkdownSource(markdownContent);
-      
-      final converter = MarkdownToPdfConverter(
-        options: PredefinedPdfOptions.defaultOptions.copyWith(
-          title: fileName,
-        ),
-      );
+      final generator = MarkdownPdfGenerator();
+      final file = await generator.generatePdf(markdownContent, fileName);
 
-      // Step 2: Convert to bytes directly
-      final pdfBytes = await converter.convertToBytes(source);
-
-      // Step 4: Save PDF to disk
-      final outputDir = await getApplicationDocumentsDirectory();
-      final safeName = fileName
-          .replaceAll(RegExp(r'[^\w\s\-]'), '')
-          .replaceAll(' ', '_');
-      final outputPath = '${outputDir.path}/$safeName.pdf';
-      final file = File(outputPath);
-      await file.writeAsBytes(pdfBytes);
-
-      return ConversionResult(success: true, outputPath: outputPath);
+      return ConversionResult(success: true, outputPath: file.path);
     } catch (e) {
       return ConversionResult(
         success: false,

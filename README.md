@@ -66,6 +66,12 @@ flutter build apk --release
 flutter build appbundle --release
 ```
 
+## System Architecture
+
+A high-level overview of Markdroid's modular conversion pipeline and internal components.
+
+![System Architecture](assets/Markdroid-System-Architecture.png)
+
 ## Project Structure
 
 ```

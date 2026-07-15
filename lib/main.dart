@@ -9,18 +9,20 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  runApp(const MarkPdfApp());
+  runApp(const MarkdroidApp());
 }
 
-class MarkPdfApp extends StatelessWidget {
-  const MarkPdfApp({super.key});
+class MarkdroidApp extends StatelessWidget {
+  const MarkdroidApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MarkPDF',
+      title: 'Markdroid',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
       home: const HomeScreen(),
     );
   }

@@ -16,34 +16,34 @@ class EmptyState extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppTheme.surface,
+                color: context.appSurface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: const Color(0xFF1E2D5A),
                   width: 1,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.description_outlined,
-                color: AppTheme.onSurfaceMuted,
+                color: context.appOnSurfaceMuted,
                 size: 36,
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'No conversions yet',
               style: TextStyle(
-                color: AppTheme.onSurface,
+                color: context.appOnSurface,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Pick a .md file and it will be\nconverted to a shareable PDF.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppTheme.onSurfaceMuted,
+                color: context.appOnSurfaceMuted,
                 fontSize: 14,
                 height: 1.5,
               ),

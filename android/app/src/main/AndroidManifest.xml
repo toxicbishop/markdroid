@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Internet permission required by WebView for PDF generation -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <!-- Storage permissions for picking and saving files -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"/>
@@ -10,7 +13,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_DOCUMENTS"/>
 
     <application
-        android:label="MarkPDF"
+        android:label="Markdroid"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">

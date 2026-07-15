@@ -40,3 +40,8 @@ app.*.symbols
 
 # Obfuscation related
 app-*.info
+
+#Agent
+.agents
+
+devtools_options.yaml

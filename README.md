@@ -7,6 +7,10 @@
 
 Android app to convert Markdown files to PDF. Built with Flutter.
 
+|                  Light Mode                  |                  Dark Mode                  |
+| :------------------------------------------: | :-----------------------------------------: |
+| ![Light Mode](assets/dashboard-light.png)    | ![Dark Mode](assets/dashboard-dark.png)     |
+
 ## Features
 
 - Pick `.md`, `.markdown`, or `.txt` files from device storage

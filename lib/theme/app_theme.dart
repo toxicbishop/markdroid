@@ -6,7 +6,7 @@ class AppTheme {
   static const Color errorLight = Color(0xFFEF4444);
   static const Color errorDark = Color(0xFFF87171);
   static const Color accentLight = Color(0xFF2563EB); // Blue 600
-  static const Color accentDark = Color(0xFF3B82F6);  // Blue 500
+  static const Color accentDark = Color(0xFF3B82F6); // Blue 500
 
   // Light Theme Colors
   static const Color primaryLight = Color(0xFFF8FAFC);

@@ -21,9 +21,7 @@ class ConversionCard extends StatelessWidget {
           color: context.appSurface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isConverting
-                ? context.appAccent
-                : const Color(0xFF1E2D5A),
+            color: isConverting ? context.appAccent : const Color(0xFF1E2D5A),
             width: isConverting ? 1.5 : 1,
           ),
         ),

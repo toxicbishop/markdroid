@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/services.dart';
 import '../services/file_service.dart';
 import '../services/pdf_service.dart';
 import '../theme/app_theme.dart';
@@ -279,9 +279,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         final file = PickedMarkdownFile(
           content: content,
-          nameWithoutExtension: fileName.substring(0, fileName.length - 3),
           fileName: fileName,
-          sizeFormatted: '${(content.length / 1024).toStringAsFixed(1)} KB',
+          filePath: url,
+          sizeBytes: utf8.encode(content).length,
         );
         setState(() => _isConverting = false);
         await _processSingleFile(file);

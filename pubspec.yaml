@@ -25,7 +25,7 @@ dependencies:
 
   # Sharing / opening files
   share_plus: ^10.0.2
-  open_file: ^3.3.2
+  open_file: ^4.0.0
 
   # Utilities
   intl: ^0.19.0

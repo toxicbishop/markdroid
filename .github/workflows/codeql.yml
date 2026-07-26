@@ -89,12 +89,11 @@ jobs:
         # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
 
-    - name: Run manual build steps
+- name: Run manual build steps
       if: matrix.build-mode == 'manual'
       shell: bash
       run: |
-        cd android
-        ./gradlew assembleDebug
+        flutter build apk --debug
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4

@@ -24,7 +24,7 @@ dependencies:
   permission_handler: ^12.0.3
 
   # Sharing / opening files
-  share_plus: ^10.0.2
+  share_plus: ^12.0.2
   open_file: ^4.0.0
 
   # Utilities

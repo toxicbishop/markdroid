@@ -1,0 +1,57 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: '26 3 * * 4'
+
+jobs:
+  # NOTE: markdroid is pure Dart/Flutter (Dart, HTML, C++/CMake/Swift are just
+  # Flutter's platform scaffolding). CodeQL does not support Dart, so there is
+  # no useful CodeQL job for this repo. This job covers static analysis,
+  # formatting, and tests instead.
+  flutter-analyze:
+    name: Flutter analyze, format & test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test
+
+  # Dependency vulnerability scanning for pub packages (the closest equivalent
+  # to what CodeQL's Dependabot alerts give other languages).
+  osv-scan:
+    name: OSV dependency scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run OSV-Scanner
+        uses: google/osv-scanner-action/osv-scanner-action@v2
+        with:
+          scan-args: |-
+            --lockfile=pubspec.lock

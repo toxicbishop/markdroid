@@ -21,7 +21,7 @@ dependencies:
   # File picking & storage
   file_picker: ^8.1.2
   path_provider: ^2.1.3
-  permission_handler: ^12.0.3
+  permission_handler: ^13.0.0
 
   # Sharing / opening files
   share_plus: ^10.0.2

@@ -19,7 +19,7 @@ dependencies:
   printing: ^5.13.1
 
   # File picking & storage
-  file_picker: ^8.1.2
+  file_picker: ^11.0.3
   path_provider: ^2.1.3
   permission_handler: ^12.0.3
 

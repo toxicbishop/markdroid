@@ -21,7 +21,7 @@ dependencies:
   # File picking & storage
   file_picker: ^8.1.2
   path_provider: ^2.1.3
-  permission_handler: ^12.0.3
+  permission_handler: ^13.0.0
 
   # Sharing / opening files
   share_plus: ^10.0.2
@@ -32,7 +32,7 @@ dependencies:
   shared_preferences: ^2.5.5
   highlight: ^0.7.0
   flutter_highlight: ^0.7.0
-  google_fonts: ^8.2.0
+  google_fonts: ^8.2.1
   http: ^1.6.0
 
 dev_dependencies:

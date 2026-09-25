@@ -15,7 +15,7 @@ dependencies:
   flutter_markdown: ^0.7.3
 
   # PDF generation
-  pdf: ^3.11.1
+  pdf: ^3.13.1
   printing: ^5.13.1
 
   # File picking & storage

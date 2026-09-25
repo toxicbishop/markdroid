@@ -16,7 +16,7 @@ dependencies:
 
   # PDF generation
   pdf: ^3.11.1
-  printing: ^5.13.1
+  printing: ^5.15.1
 
   # File picking & storage
   file_picker: ^8.1.2
